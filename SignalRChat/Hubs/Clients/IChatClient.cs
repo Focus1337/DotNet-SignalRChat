@@ -2,5 +2,7 @@
 
 public interface IChatClient
 {
-    public Task ReceiveMessage(string name, string text);
+    public Task ReceiveMessage(MessageRequest req);
+    public Task<string> GetMessage();
+    public Task GetCurrentTime(string currentTime);
 }
