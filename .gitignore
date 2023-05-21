@@ -1,0 +1,6 @@
+﻿.idea/
+obj
+bin
+
+node_modules/
+dist/
