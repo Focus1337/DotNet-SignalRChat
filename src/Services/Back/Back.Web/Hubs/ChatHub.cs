@@ -1,7 +1,7 @@
-﻿using Back.Hubs.Clients;
+﻿using Back.Web.Hubs.Clients;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Back.Hubs;
+namespace Back.Web.Hubs;
 
 public class TotalLengthRequest
 {

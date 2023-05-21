@@ -1,9 +1,9 @@
-﻿using Back.Hubs;
-using Back.Hubs.Clients;
+﻿using Back.Web.Hubs;
+using Back.Web.Hubs.Clients;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Back.Controllers;
+namespace Back.Web.Controllers;
 
 [ApiController]
 [Route("[controller]")]

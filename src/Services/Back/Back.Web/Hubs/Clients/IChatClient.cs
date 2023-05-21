@@ -1,4 +1,4 @@
-﻿namespace Back.Hubs.Clients;
+﻿namespace Back.Web.Hubs.Clients;
 
 public interface IChatClient
 {
