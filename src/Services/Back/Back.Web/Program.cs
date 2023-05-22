@@ -13,6 +13,17 @@ builder.AddCustomOpenIddict();
 
 services.AddSignalR(opt => { opt.EnableDetailedErrors = true; });
 
+services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("https://localhost", "http://localhost:3000")
+            .AllowAnyHeader()
+            .WithMethods("GET", "POST", "PATCH")
+            .AllowCredentials();
+    });
+});
+
 services.AddEndpointsApiExplorer();
 
 builder.AddCustomSwaggerGen();
@@ -32,7 +43,7 @@ if (app.Environment.IsDevelopment())
 
 await app.MigrateDbContext();
 
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors();
 
 // app.UseHttpsRedirection();
 

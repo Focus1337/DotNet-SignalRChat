@@ -1,0 +1,42 @@
+﻿.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.25rem;
+}
+
+.header-item {
+    height: 1.5em;
+    width: 8rem;
+    padding: 6px;
+    margin-left: 1rem;
+    margin-right: 2rem;
+    font-weight: bold;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    background-color: whitesmoke;
+}
+
+.header-item:hover {
+    cursor: pointer;
+    background-color: antiquewhite;
+}
+
+.header-item a {
+    text-decoration: none;
+    color: black;
+}
+
+.header-item button {
+    border: none;
+    background-color: whitesmoke;
+    color: black;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.header-button:hover {
+    cursor: pointer;
+    background-color: antiquewhite;
+}

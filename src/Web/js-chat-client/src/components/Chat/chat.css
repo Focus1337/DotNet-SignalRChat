@@ -1,0 +1,109 @@
+﻿#chat-container {
+    margin-top: 5rem;
+    margin-bottom: 5rem;
+    width: 40rem;
+    border-radius: 12px;
+    background-color: white;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    border-bottom: 1px solid lightgrey;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+
+#bubble {
+    display: flex;
+    width: fit-content;
+    margin-bottom: 8px;
+}
+
+#bubble.other-message {
+    align-self: flex-start;
+    margin-left: 20px;
+}
+
+#bubble.own-message {
+    flex-direction: row-reverse;
+    align-self: flex-end;
+    margin-right: 20px;
+}
+
+
+#bubble-content {
+    border-radius: 12px;
+    width: fit-content;
+    max-width: 300px;
+    padding: 10px;
+    color: white;
+}
+
+#bubble-content.own-message {
+    background-color: #314cbe;
+    margin-right: 12px;
+}
+
+#bubble-content.other-message {
+    background-color: #673ab7;
+    margin-left: 12px;
+}
+
+
+#bubble-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid gray;
+}
+
+
+#bubble-name {
+    font-weight: bold;
+    color: #f8d700;
+    font-size: 1.05em;
+    margin-bottom: 4px;
+}
+
+#bubble-name.own-message {
+    text-align: right;
+}
+
+#bubble-name.other-message {
+    text-align: left;
+}
+
+
+#bubble-text.other-message {
+    text-align: left;
+}
+
+#bubble-text.own-message {
+    text-align: right;
+}
+
+
+#chat::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+    background-clip: padding-box;
+}
+
+#chat::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chat::-webkit-scrollbar-track {
+    border-radius: 12px;
+}
+
+#chat::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}

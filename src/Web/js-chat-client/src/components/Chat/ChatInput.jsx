@@ -23,7 +23,7 @@ export default function ChatInput(props) {
                 setText(event.target.value);
                 break;
             default:
-                throw new Error("Invalid input");
+                return;
         }
     }
 

@@ -2,6 +2,8 @@ import ChatWindow from "./ChatWindow/ChatWindow";
 import ChatInput from "./ChatInput";
 import {HubConnectionBuilder} from "@microsoft/signalr";
 import {useEffect, useState} from "react";
+import {API_URL} from "../../utils/env";
+import axios from "../../utils/axios";
 
 export default function Chat() {
     const [connection, setConnection] = useState(null);
@@ -9,7 +11,7 @@ export default function Chat() {
 
     useEffect(() => {
         const connect = new HubConnectionBuilder()
-            .withUrl('http://localhost:5058/chat')
+            .withUrl(`${API_URL}/chat`)
             .build();
 
         setConnection(connect);
@@ -48,11 +50,15 @@ export default function Chat() {
             throw new Error('Lost connection');
     }
 
-    let getCurrentTime = async function () {
+    let getCurrentTime = function () {
         if (connection) {
-            let response = await fetch(`http://localhost:5058/home/${connection.connectionId}`);
-
-            console.log(await response.text());
+            axios.get(`/home/${connection.connectionId}`)
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(e => {
+                    alert(e.response.statusText);
+                });
         }
     }
 
