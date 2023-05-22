@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Back.Web.Controllers;
 
+[OpenIddictAuthorize]
 [ApiController]
 [Route("[controller]")]
 public class HomeController : ControllerBase
@@ -16,7 +17,6 @@ public class HomeController : ControllerBase
         _hubContext = hubContext;
     }
 
-    [OpenIddictAuthorize]
     [HttpGet("{connectionId}")]
     public async Task<string> Get(string connectionId)
     {

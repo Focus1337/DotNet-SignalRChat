@@ -10,7 +10,6 @@ import React from "react";
 function App() {
     return (
         <div className="App">
-
             <BrowserRouter>
                 <Header/>
                 <div id="container">
@@ -21,7 +20,6 @@ function App() {
                     </Routes>
                 </div>
             </BrowserRouter>
-
         </div>
     )
 }

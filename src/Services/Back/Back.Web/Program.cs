@@ -1,5 +1,7 @@
 using Back.Web;
 using Back.Web.Hubs;
+using Back.Web.Hubs.Filters;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -11,7 +13,11 @@ builder.AddCustomIdentity();
 builder.ConfigureCustomIdentityOptions();
 builder.AddCustomOpenIddict();
 
-services.AddSignalR(opt => { opt.EnableDetailedErrors = true; });
+services.AddSignalR(opt =>
+{
+    opt.EnableDetailedErrors = true;
+    opt.AddFilter<CustomFilter>();
+});
 
 services.AddCors(options =>
 {

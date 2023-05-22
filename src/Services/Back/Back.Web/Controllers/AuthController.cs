@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using System.Security.Claims;
 using Back.Application.Models;
 using Back.Web.Dto.User;
 using Microsoft.AspNetCore;
@@ -39,6 +40,15 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
+        result = await _userManager.AddClaimsAsync(user,
+            new[]
+            {
+                new Claim(ClaimTypes.Email, registerUserDto.Email),
+                new Claim(ClaimTypes.Name, registerUserDto.Email)
+            });
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+        
         return StatusCode(StatusCodes.Status201Created, user.Id);
     }
 
@@ -155,7 +165,6 @@ public class AuthController : ControllerBase
         // Create a new authentication ticket holding the user identity.
         var ticket = new AuthenticationTicket(principal, new AuthenticationProperties(),
             OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-
         return ticket;
     }
 }
