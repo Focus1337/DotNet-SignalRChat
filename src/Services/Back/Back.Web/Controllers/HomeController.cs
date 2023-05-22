@@ -16,6 +16,7 @@ public class HomeController : ControllerBase
         _hubContext = hubContext;
     }
 
+    [OpenIddictAuthorize]
     [HttpGet("{connectionId}")]
     public async Task<string> Get(string connectionId)
     {

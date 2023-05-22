@@ -56,7 +56,7 @@ public class UserService : IUserService<User>
     public async Task<User?> GetCurrentUser()
     {
         var user = _httpContextAccessor.HttpContext?.User ?? throw new Exception("Not logged in");
-        return await FindByEmail(user.FindFirstValue(OpenIddictConstants.Claims.Email) ??
+        return await FindByEmail(user.FindFirstValue(OpenIddictConstants.Claims.Username) ??
                                  throw new Exception("Not logged in"));
     }
 }

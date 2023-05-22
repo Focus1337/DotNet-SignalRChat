@@ -41,17 +41,20 @@ public static class ProgramExtensions
     public static void AddCustomSwaggerGen(this WebApplicationBuilder builder) =>
         builder.Services.AddSwaggerGen(option =>
         {
+            option.EnableAnnotations();
             option.SwaggerDoc("v1", new OpenApiInfo { Title = $"{AppName} API", Version = "v1" });
-            option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            option.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
-                In = ParameterLocation.Header,
-                Description = "Please enter a valid token",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = "Bearer"
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
+                {
+                    Password = new OpenApiOAuthFlow
+                    {
+                        TokenUrl = new Uri("/connect/token", UriKind.Relative)
+                    }
+                }
             });
-            var requirement = new OpenApiSecurityRequirement
+            option.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
@@ -59,13 +62,12 @@ public static class ProgramExtensions
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            Id = "oauth2"
                         }
                     },
                     Array.Empty<string>()
                 }
-            };
-            option.AddSecurityRequirement(requirement);
+            });
         });
 
     public static void AddCustomDb(this WebApplicationBuilder builder)
@@ -93,7 +95,7 @@ public static class ProgramExtensions
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options => options.ClaimsIssuer = JwtBearerDefaults.AuthenticationScheme)
-            .AddCookie(options => { options.LoginPath = new PathString("/auth/login"); });
+            .AddCookie(options => { options.LoginPath = new PathString("/connect/token"); });
 
     public static void AddCustomOpenIddict(this WebApplicationBuilder builder) =>
         builder.Services.AddOpenIddict()
@@ -106,7 +108,7 @@ public static class ProgramExtensions
                     .AcceptAnonymousClients()
                     .AllowPasswordFlow()
                     .AllowRefreshTokenFlow();
-                options.SetTokenEndpointUris("/auth/login");
+                options.SetTokenEndpointUris("/connect/token");
                 var cfg = options.UseAspNetCore();
                 if (builder.Environment.IsDevelopment())
                     cfg.DisableTransportSecurityRequirement();
