@@ -1,11 +1,13 @@
 import {Link} from "react-router-dom";
 import {redirectToLogin} from "../../utils/globals";
 import axios from "../../utils/axios";
+import {ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY} from "../../utils/env";
 
 export default function Header() {
     const onSignOut = async () => {
         await axios.post('/auth/logout');
-        localStorage.removeItem('jwt');
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
         redirectToLogin();
     }
 

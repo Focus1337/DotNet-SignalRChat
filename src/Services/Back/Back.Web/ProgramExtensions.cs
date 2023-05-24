@@ -106,6 +106,8 @@ public static class ProgramExtensions
             {
                 options
                     .AcceptAnonymousClients()
+                    .SetAccessTokenLifetime(TimeSpan.FromHours(1))
+                    .SetRefreshTokenLifetime(TimeSpan.FromDays(30))
                     .AllowPasswordFlow()
                     .AllowRefreshTokenFlow();
                 options.SetTokenEndpointUris("/connect/token");

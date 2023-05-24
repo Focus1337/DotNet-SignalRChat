@@ -57,6 +57,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<ChatHub>("/chat");
+app.MapHub<ChatHub>("/chat", options =>
+{
+    options.CloseOnAuthenticationExpiration = true;
+});
 
 app.Run();

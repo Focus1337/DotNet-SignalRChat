@@ -48,7 +48,7 @@ public class AuthController : ControllerBase
             });
         if (!result.Succeeded)
             return BadRequest(result.Errors);
-        
+
         return StatusCode(StatusCodes.Status201Created, user.Id);
     }
 
@@ -62,6 +62,7 @@ public class AuthController : ControllerBase
     [Consumes("application/x-www-form-urlencoded")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(OpenIddictResponse))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(OpenIddictResponse))]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OpenIddictResponse))]
     [SwaggerOperation(
         Summary = "Access Token generation operation",
@@ -72,47 +73,74 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Exchange()
     {
         var request = HttpContext.GetOpenIddictServerRequest() ?? throw new Exception("OpenIdDict config is wrong");
+        User? user;
 
-        if (!request.IsPasswordGrantType())
+        if (request.IsPasswordGrantType())
+        {
+            if (request.Username is null || request.Password is null)
+                return BadRequest(new OpenIddictResponse
+                {
+                    Error = OpenIddictConstants.Errors.InvalidRequest,
+                    ErrorDescription = "Username or password is null."
+                });
+
+            user = await _userManager.FindByNameAsync(request.Username);
+            if (user is null)
+                return BadRequest(new OpenIddictResponse
+                {
+                    Error = OpenIddictConstants.Errors.InvalidGrant,
+                    ErrorDescription = "The username/password couple is invalid."
+                });
+
+            if (!await _signInManager.CanSignInAsync(user))
+                return BadRequest(new OpenIddictResponse
+                {
+                    Error = OpenIddictConstants.Errors.InvalidGrant,
+                    ErrorDescription = "The specified user is not allowed to sign in."
+                });
+
+            if (!await _userManager.CheckPasswordAsync(user, request.Password))
+                return BadRequest(new OpenIddictResponse
+                {
+                    Error = OpenIddictConstants.Errors.InvalidGrant,
+                    ErrorDescription = "The username/password couple is invalid."
+                });
+        }
+        else if (request.IsRefreshTokenGrantType())
+        {
+            var authResult =
+                await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            user = await _userManager.GetUserAsync(authResult.Principal ??
+                                                   throw new InvalidOperationException("No auth result was provided"));
+
+            if (user is null)
+                return Forbid(new AuthenticationProperties(new Dictionary<string, string>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.InvalidGrant,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                        "The refresh token is no longer valid."
+                }!), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+            if (!await _signInManager.CanSignInAsync(user))
+                return Forbid(new AuthenticationProperties(new Dictionary<string, string>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.InvalidGrant,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                        "The user is no longer allowed to sign in."
+                }!), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+        else
             return BadRequest(new OpenIddictResponse
             {
                 Error = OpenIddictConstants.Errors.UnsupportedGrantType,
                 ErrorDescription = "The specified grant type is not supported."
             });
 
-        if (request.Username is null || request.Password is null)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidRequest,
-                ErrorDescription = "Username or password is null."
-            });
-
-        var user = await _userManager.FindByNameAsync(request.Username);
-        if (user is null)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = "The username/password couple is invalid."
-            });
-
-        // Ensure the user is allowed to sign in.
-        if (!await _signInManager.CanSignInAsync(user))
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = "The specified user is not allowed to sign in."
-            });
-
-        // Ensure the password is valid.
-        if (!await _userManager.CheckPasswordAsync(user, request.Password))
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = "The username/password couple is invalid."
-            });
-
         // Create a new authentication ticket.
         var ticket = await CreateTicketAsync(request, user);
+
+        if (request.IsRefreshTokenGrantType())
+            return SignIn(ticket.Principal, ticket.AuthenticationScheme);
 
         return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
     }
@@ -130,10 +158,10 @@ public class AuthController : ControllerBase
             // to allow OpenIddict to return a refresh token.
             principal.SetScopes(new[]
             {
-                // OpenIddictConstants.Scopes.OpenId,
                 OpenIddictConstants.Scopes.Email,
                 OpenIddictConstants.Scopes.Profile,
-                OpenIddictConstants.Scopes.Roles
+                OpenIddictConstants.Scopes.Roles,
+                OpenIddictConstants.Scopes.OfflineAccess
             }.Intersect(request.GetScopes()));
         }
 
@@ -163,8 +191,15 @@ public class AuthController : ControllerBase
         }
 
         // Create a new authentication ticket holding the user identity.
-        var ticket = new AuthenticationTicket(principal, new AuthenticationProperties(),
+        if (request.IsRefreshTokenGrantType())
+            return new AuthenticationTicket(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+        return new AuthenticationTicket(principal, new AuthenticationProperties
+            {
+                IssuedUtc = DateTimeOffset.UtcNow,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30),
+                AllowRefresh = false
+            },
             OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-        return ticket;
     }
 }

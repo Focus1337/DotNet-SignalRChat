@@ -1,6 +1,7 @@
 import {useState} from "react";
 import axios from "../../utils/axios";
 import {redirectToHome} from "../../utils/globals";
+import {ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY} from "../../utils/env";
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -23,7 +24,8 @@ export default function Login() {
         let data = {
             username: username,
             password: password,
-            grant_type: "password"
+            grant_type: "password",
+            scope: "offline_access"
         };
 
         axios.post('/connect/token', data, {
@@ -31,7 +33,8 @@ export default function Login() {
         })
             .then(response => {
                 console.log(response.data);
-                localStorage.setItem('jwt', response.data.access_token);
+                localStorage.setItem(ACCESS_TOKEN_KEY, response.data.access_token);
+                localStorage.setItem(REFRESH_TOKEN_KEY, response.data.refresh_token);
                 redirectToHome();
             })
             .catch(e => {

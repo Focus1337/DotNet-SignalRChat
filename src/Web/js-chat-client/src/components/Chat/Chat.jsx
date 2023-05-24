@@ -1,9 +1,9 @@
 import ChatWindow from "./ChatWindow/ChatWindow";
 import ChatInput from "./ChatInput";
-import {HubConnectionBuilder} from "@microsoft/signalr";
+import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useEffect, useState} from "react";
-import {API_URL} from "../../utils/env";
-import axios from "../../utils/axios";
+import {ACCESS_TOKEN_KEY, API_URL} from "../../utils/env";
+import axios, {refreshAccessToken} from "../../utils/axios";
 
 export default function Chat() {
     const [connection, setConnection] = useState(null);
@@ -11,31 +11,60 @@ export default function Chat() {
 
     useEffect(() => {
         const connect = new HubConnectionBuilder()
-            .withUrl(`${API_URL}/chat`)
+            .withUrl(`${API_URL}/chat`, {
+                accessTokenFactory: () => localStorage.getItem(ACCESS_TOKEN_KEY)
+            })
+            .configureLogging(LogLevel.Information)
+            .withAutomaticReconnect({
+                nextRetryDelayInMilliseconds: retryContext => {
+                    if (retryContext.retryReason.message.includes('Unauthorized'))
+                        refreshAccessToken();
+
+                    if (retryContext.elapsedMilliseconds < 60000)
+                        return Math.random() * 10000;
+
+                    return null;
+                }
+            })
             .build();
 
         setConnection(connect);
     }, []);
 
     useEffect(() => {
-        if (connection) {
-            connection.start()
-                .then(() => {
-                    console.log('Connected');
+        if (!connection)
+            return;
 
-                    connection.on('ReceiveMessage', (req) => {
-                        let sameUser = connection.connectionId === req.connectionId;
-                        setChat(prevState => [...prevState, {name: req.name, text: req.text, sameUser}]);
-                    });
+        async function start() {
+            try {
+                await connection.start();
+                console.log('Connected');
+            } catch (e) {
+                console.log(e.message);
 
-                    connection.on('GetCurrentTime', (time) => {
-                        setChat(prevState => [...prevState, {name: "Current time is:", text: time, sameUser: false}]);
-                    });
-                })
-                .catch(reason => {
-                    console.log(reason);
-                });
+                if (e.message.includes('Unauthorized'))
+                    refreshAccessToken();
+
+                console.log('Restarting');
+                setTimeout(start, 5000);
+            }
         }
+
+        connection.on('ReceiveMessage', (req) => {
+            let sameUser = connection.connectionId === req.connectionId;
+            setChat(prevState => [...prevState, {name: req.name, text: req.text, sameUser}]);
+        });
+
+        connection.on('GetCurrentTime', (time) => {
+            setChat(prevState => [...prevState, {name: "Current time is:", text: time, sameUser: false}]);
+        });
+
+        connection.onreconnecting(() => {
+            console.log('Reconnecting');
+        });
+
+        start();
+
     }, [connection]);
 
     let sendMessage = async function (name, text) {

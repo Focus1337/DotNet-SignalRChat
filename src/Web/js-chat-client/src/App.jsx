@@ -8,15 +8,22 @@ import {userAuthorized} from "./utils/globals";
 import React from "react";
 
 function App() {
+    const withAuth = (Component, navigatePath, isAuthorized) => {
+        if (userAuthorized === isAuthorized) {
+            return <Navigate to={navigatePath} replace/>;
+        }
+        return <Component/>;
+    };
+
     return (
         <div className="App">
             <BrowserRouter>
                 <Header/>
                 <div id="container">
                     <Routes>
-                        <Route path='/' element={!userAuthorized ? <Navigate to="/login" replace/> : <Chat/>}/>
-                        <Route path='/login' element={userAuthorized ? <Navigate to="/" replace/> : <Login/>}/>
-                        <Route path='/register' element={userAuthorized ? <Navigate to="/" replace/> : <Register/>}/>
+                        <Route path='/' element={withAuth(Chat, '/login', false)}/>
+                        <Route path='/login' element={withAuth(Login, '/', true)}/>
+                        <Route path='/register' element={withAuth(Register, '/', true)}/>
                     </Routes>
                 </div>
             </BrowserRouter>

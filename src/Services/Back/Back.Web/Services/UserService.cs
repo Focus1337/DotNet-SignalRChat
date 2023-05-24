@@ -36,14 +36,6 @@ public class UserService : IUserService<User>
         return true;
     }
 
-    public async Task<User> UpdateUser(User user)
-    {
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-            throw new Exception("Unable to update user");
-        return (await FindByEmail(user.Email))!;
-    }
-
     public async Task<List<User>> GetUsers() =>
         await _query.ToListAsync();
 
@@ -55,8 +47,7 @@ public class UserService : IUserService<User>
 
     public async Task<User?> GetCurrentUser()
     {
-        var user = _httpContextAccessor.HttpContext?.User ?? throw new Exception("Not logged in");
-        return await FindByEmail(user.FindFirstValue(OpenIddictConstants.Claims.Username) ??
-                                 throw new Exception("Not logged in"));
+        var username = _httpContextAccessor.HttpContext?.User.FindFirstValue(OpenIddictConstants.Claims.Username);
+        return username is not null ? await _userManager.FindByNameAsync(username) : null;
     }
 }

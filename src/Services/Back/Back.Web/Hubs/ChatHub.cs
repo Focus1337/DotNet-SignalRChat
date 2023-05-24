@@ -1,5 +1,7 @@
-﻿using Back.Web.Hubs.Clients;
+﻿using System.Security.Claims;
+using Back.Web.Hubs.Clients;
 using Microsoft.AspNetCore.SignalR;
+using OpenIddict.Abstractions;
 
 namespace Back.Web.Hubs;
 
@@ -15,11 +17,13 @@ public class MessageRequest
     public string ConnectionId { get; set; } = null!;
 }
 
+[OpenIddictAuthorize]
 public class ChatHub : Hub<IChatClient>
 {
     public async Task SendMessage(string name, string text, string connectionId)
     {
         await Clients.All.ReceiveMessage(new MessageRequest { Name = name, Text = text, ConnectionId = connectionId });
+        Console.WriteLine(Context.User.FindFirstValue(OpenIddictConstants.Claims.Username));
     }
 
     public async Task<string> WaitForMessage(string connectionId)
