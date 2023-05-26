@@ -1,10 +1,13 @@
-﻿using Back.Application.Interfaces;
-using Back.Application.Models;
+﻿using Back.Core.Interfaces;
+using Back.Core.Models;
+using Back.Core.Services;
+using Back.Infrastructure;
 using Back.Infrastructure.Data;
 using Back.Infrastructure.Options;
 using Back.Web.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Abstractions;
@@ -20,22 +23,15 @@ public static class ProgramExtensions
     {
         builder.Services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
         builder.Services.AddControllers()
-            // .ConfigureApiBehaviorOptions(options =>
-            // {
-            //     options.InvalidModelStateResponseFactory = context =>
-            //     {
-            //         var errors = context.ModelState.Values.SelectMany(x => x.Errors.Select(p => p.ErrorMessage))
-            //             .ToList();
-            //         return new BadRequestObjectResult(new ModelStateDto { Errors = errors });
-            //     };
-            // })
             .AddNewtonsoftJson();
     }
 
     public static void AddCustomApplicationServices(this WebApplicationBuilder builder)
     {
+        builder.Services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
         builder.Services.AddTransient<IUserService<User>, UserService>();
-        // builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddTransient<IMessageService, MessageService>();
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 
     public static void AddCustomSwaggerGen(this WebApplicationBuilder builder) =>

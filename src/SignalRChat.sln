@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Back.Web", "Services\Back\B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{FE429B85-2436-462A-86A0-AB112B298FDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Back.Application", "Services\Back\Back.Application\Back.Application.csproj", "{C4B3329C-6B57-4462-A1D1-9795FEF3C00B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Back.Core", "Services\Back\Back.Core\Back.Core.csproj", "{C4B3329C-6B57-4462-A1D1-9795FEF3C00B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Back.Infrastructure", "Services\Back\Back.Infrastructure\Back.Infrastructure.csproj", "{375D5A64-F3E4-41EB-AE0B-62F39FD1E615}"
 EndProject

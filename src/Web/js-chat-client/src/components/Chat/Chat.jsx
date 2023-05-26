@@ -2,7 +2,7 @@ import ChatWindow from "./ChatWindow/ChatWindow";
 import ChatInput from "./ChatInput";
 import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useEffect, useState} from "react";
-import {ACCESS_TOKEN_KEY, API_URL} from "../../utils/env";
+import {ACCESS_TOKEN_KEY, API_URL, USERNAME_KEY} from "../../utils/env";
 import axios, {refreshAccessToken} from "../../utils/axios";
 
 export default function Chat() {
@@ -50,9 +50,9 @@ export default function Chat() {
             }
         }
 
-        connection.on('ReceiveMessage', (req) => {
-            let sameUser = connection.connectionId === req.connectionId;
-            setChat(prevState => [...prevState, {name: req.name, text: req.text, sameUser}]);
+        connection.on('ReceiveMessage', (res) => {
+            let sameUser = localStorage.getItem(USERNAME_KEY) === res.name;
+            setChat(prevState => [...prevState, {name: res.name, text: res.text, sameUser}]);
         });
 
         connection.on('GetCurrentTime', (time) => {
@@ -67,27 +67,38 @@ export default function Chat() {
 
     }, [connection]);
 
-    let sendMessage = async function (name, text) {
-        if (connection) {
-            try {
-                await connection.send('SendMessage', name, text, connection.connectionId);
-                console.log(await connection.invoke('GetTotalLength', {param1: text, param2: name}));
-            } catch (e) {
-                console.log(e);
-            }
-        } else
-            throw new Error('Lost connection');
-    }
+    // let getStream = (name) =>
+    //     connection.stream("Counter", 10, 500)
+    //         .subscribe({
+    //             next: async (item) => {
+    //                 await connection.send('SendMessage', name, item.toString(), connection.connectionId);
+    //             },
+    //             complete: async () => {
+    //                 await connection.send('SendMessage', name, "Stream completed", connection.connectionId);
+    //             },
+    //             error: async (err) => {
+    //                 await connection.send('SendMessage', name, err.toString(), connection.connectionId);
+    //             },
+    //         });
 
-    let getCurrentTime = function () {
-        if (connection) {
-            axios.get(`/home/${connection.connectionId}`)
-                .then(response => {
-                    console.log(response.data);
-                })
-                .catch(e => {
-                    alert(e.response.statusText);
-                });
+    let sendMessage = async function (messageRequest) {
+        if (!connection)
+            throw new Error('No chat connection');
+        try {
+            await connection.send('SendMessage', messageRequest);
+            console.log(await connection.invoke('GetTotalLength', {param1: messageRequest.text}));
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    let getCurrentTime = async () => {
+        if (!connection)
+            throw new Error('No chat connection');
+        try {
+            await axios.get(`/home`);
+        } catch (e) {
+            alert(e.response.statusText);
         }
     }
 

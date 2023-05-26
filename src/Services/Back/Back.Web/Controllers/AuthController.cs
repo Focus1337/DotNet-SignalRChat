@@ -1,6 +1,6 @@
 ﻿using System.Net.Mime;
 using System.Security.Claims;
-using Back.Application.Models;
+using Back.Core.Models;
 using Back.Web.Dto.User;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;

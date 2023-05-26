@@ -1,7 +1,7 @@
 import {useState} from "react";
 import axios from "../../utils/axios";
 import {redirectToHome} from "../../utils/globals";
-import {ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY} from "../../utils/env";
+import {ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY} from "../../utils/env";
 
 export default function Login() {
     const [username, setUsername] = useState('');
@@ -32,9 +32,9 @@ export default function Login() {
             headers: {"Content-Type": "application/x-www-form-urlencoded"}
         })
             .then(response => {
-                console.log(response.data);
                 localStorage.setItem(ACCESS_TOKEN_KEY, response.data.access_token);
                 localStorage.setItem(REFRESH_TOKEN_KEY, response.data.refresh_token);
+                localStorage.setItem(USERNAME_KEY, username);
                 redirectToHome();
             })
             .catch(e => {
