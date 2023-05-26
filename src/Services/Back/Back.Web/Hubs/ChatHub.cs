@@ -20,20 +20,23 @@ public class ChatHub : Hub<IChatClient>
         _userManager = userManager;
     }
 
-    public async Task SendMessage(MessageRequest request)
+    public async Task<string> SendMessage(MessageRequest request)
     {
         var name = Context.User?.FindFirstValue(OpenIddictConstants.Claims.Email);
         Console.WriteLine(name);
         if (name is null)
-            return;
+            return "Error";
 
         if (await _userManager.FindByNameAsync(name) is not { } user)
-            return;
+            return "Error";
 
         if (user.Email is null)
-            return;
+            return "Error";
 
-        await Clients.All.ReceiveMessage(new MessageResponse { Name = user.Email, Text = request.Text });
+        await Clients.All.ReceiveMessage(new MessageResponse
+            { Name = user.Email, Text = request.Text, SentTime = DateTime.Now });
+
+        return "Sent";
     }
 
     public async Task<string> WaitForMessage(string connectionId)

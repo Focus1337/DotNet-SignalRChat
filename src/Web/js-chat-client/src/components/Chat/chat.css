@@ -23,7 +23,6 @@
 #bubble {
     display: flex;
     width: fit-content;
-    margin-bottom: 8px;
 }
 
 #bubble.other-message {
@@ -63,7 +62,6 @@
     border-radius: 50%;
     border: 1px solid gray;
 }
-
 
 #bubble-name {
     font-weight: bold;
@@ -106,4 +104,23 @@
 
 #chat::-webkit-scrollbar-thumb:hover {
     background: #777;
+}
+
+#sent-time {
+    align-self: center;
+    color: #2f2f2f;
+}
+
+#outer-bubble {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+#outer-bubble.other-message {
+    align-self: flex-start;
+}
+
+#outer-bubble.own-message {
+    align-self: flex-end;
 }

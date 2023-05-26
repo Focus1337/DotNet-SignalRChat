@@ -4,4 +4,5 @@ public class MessageResponse
 {
     public string Name { get; set; } = null!;
     public string Text { get; set; } = null!;
+    public DateTime SentTime { get; set; }
 }

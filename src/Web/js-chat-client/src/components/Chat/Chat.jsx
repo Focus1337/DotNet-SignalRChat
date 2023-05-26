@@ -4,6 +4,7 @@ import {HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 import {useEffect, useState} from "react";
 import {ACCESS_TOKEN_KEY, API_URL, USERNAME_KEY} from "../../utils/env";
 import axios, {refreshAccessToken} from "../../utils/axios";
+import Message from "../../models/Message";
 
 export default function Chat() {
     const [connection, setConnection] = useState(null);
@@ -35,6 +36,21 @@ export default function Chat() {
         if (!connection)
             return;
 
+        axios.get('/messages')
+            .then(response => {
+                const curUsername = localStorage.getItem(USERNAME_KEY);
+                for (let message of response.data) {
+                    setChat(prevState => [...prevState,
+                        new Message(message.username, message.text, message.sentTime, message.username === curUsername)]);
+                }
+
+                setTimeout(() => {
+                    let chatElement = document.getElementById('chat');
+                    chatElement.scroll(0, chatElement.scrollHeight);
+                });
+            })
+            .catch(e => console.log(e));
+
         async function start() {
             try {
                 await connection.start();
@@ -52,11 +68,11 @@ export default function Chat() {
 
         connection.on('ReceiveMessage', (res) => {
             let sameUser = localStorage.getItem(USERNAME_KEY) === res.name;
-            setChat(prevState => [...prevState, {name: res.name, text: res.text, sameUser}]);
+            setChat(prevState => [...prevState, new Message(res.name, res.text, res.sentTime, sameUser)]);
         });
 
         connection.on('GetCurrentTime', (time) => {
-            setChat(prevState => [...prevState, {name: "Current time is:", text: time, sameUser: false}]);
+            setChat(prevState => [...prevState, new Message("Current time is:", time, '', false)]);
         });
 
         connection.onreconnecting(() => {
@@ -67,26 +83,27 @@ export default function Chat() {
 
     }, [connection]);
 
-    // let getStream = (name) =>
-    //     connection.stream("Counter", 10, 500)
-    //         .subscribe({
-    //             next: async (item) => {
-    //                 await connection.send('SendMessage', name, item.toString(), connection.connectionId);
-    //             },
-    //             complete: async () => {
-    //                 await connection.send('SendMessage', name, "Stream completed", connection.connectionId);
-    //             },
-    //             error: async (err) => {
-    //                 await connection.send('SendMessage', name, err.toString(), connection.connectionId);
-    //             },
-    //         });
+// let getStream = (name) =>
+//     connection.stream("Counter", 10, 500)
+//         .subscribe({
+//             next: async (item) => {
+//                 await connection.send('SendMessage', name, item.toString(), connection.connectionId);
+//             },
+//             complete: async () => {
+//                 await connection.send('SendMessage', name, "Stream completed", connection.connectionId);
+//             },
+//             error: async (err) => {
+//                 await connection.send('SendMessage', name, err.toString(), connection.connectionId);
+//             },
+//         });
 
     let sendMessage = async function (messageRequest) {
         if (!connection)
             throw new Error('No chat connection');
         try {
-            await connection.send('SendMessage', messageRequest);
-            console.log(await connection.invoke('GetTotalLength', {param1: messageRequest.text}));
+            let res = await connection.invoke('SendMessage', messageRequest);
+            console.log(res);
+            await axios.post('/messages', messageRequest);
         } catch (e) {
             console.log(e);
         }
