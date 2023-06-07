@@ -5,21 +5,41 @@ using GrpcService;
 
 namespace GrpcService.Services;
 
-public class GreeterService : Greeter.GreeterBase
+public class GreeterService : GrpcService.Greeter.GreeterBase
 {
-    private readonly ILogger<GreeterService> _logger;
+    private readonly IGreeter _greeter;
 
-    public GreeterService(ILogger<GreeterService> logger)
+    public GreeterService(IGreeter greeter)
     {
-        _logger = logger;
+        _greeter = greeter;
+    }
+
+    public override Task<ResponseMessage> ResponseWithOneof(HelloRequest request, ServerCallContext context)
+    {
+        if (!request.Name.Contains('s'))
+            return Task.FromResult(new ResponseMessage
+            {
+                Error = new Error
+                {
+                    Name = "InvalidNameError",
+                    Details = "Provided name does not contain s letter"
+                }
+            });
+
+        return Task.FromResult(new ResponseMessage
+        {
+            Person = new Person { Name = request.Name, Age = request.Age }
+        });
     }
 
     public override Task<HelloResponse> SayHello(HelloRequest request, ServerCallContext context)
     {
+        var name = _greeter.Greet(request.Name);
+
         var description = string.Join(" & ", request.Attributes.Select(pair => $"{pair.Key}: {pair.Value}"));
         return Task.FromResult(new HelloResponse
         {
-            Message = $"Hello, {request.Name}. Your age: {request.Age}.",
+            Message = $"Hello, {name}. Your age: {request.Age}.",
             SentDate = Timestamp.FromDateTime(DateTime.UtcNow),
             Description = description,
             Synonyms = { "Privet", "Bonjour", "Salam" }

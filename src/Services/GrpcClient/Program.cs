@@ -6,9 +6,22 @@ using GrpcClient;
 using var channel = GrpcChannel.ForAddress("http://localhost:5029");
 var client = new Greeter.GreeterClient(channel);
 
-await UnaryOperation(client);
+// await UnaryOperation(client);
+await Oneof(client);
 Console.WriteLine("Press any key to exit...");
 Console.ReadKey();
+
+static async Task Oneof(Greeter.GreeterClient client)
+{
+    var response = await client.ResponseWithOneofAsync(new HelloRequest { Name = "Focus", Age = 20 });
+    if (response.ResultCase == ResponseMessage.ResultOneofCase.Error)
+    {
+        Console.WriteLine(response.Error.Name);
+        return;
+    }
+
+    Console.WriteLine($"{response.Person.Name}: {response.Person.Age}");
+}
 
 static async Task UnaryOperation(Greeter.GreeterClient client)
 {
