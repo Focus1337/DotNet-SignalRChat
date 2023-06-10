@@ -32,18 +32,21 @@ public class GreeterService : GrpcService.Greeter.GreeterBase
         });
     }
 
-    public override Task<HelloResponse> SayHello(HelloRequest request, ServerCallContext context)
+    public override async Task<HelloResponse> SayHello(HelloRequest request, ServerCallContext context)
     {
         var name = _greeter.Greet(request.Name);
 
         var description = string.Join(" & ", request.Attributes.Select(pair => $"{pair.Key}: {pair.Value}"));
-        return Task.FromResult(new HelloResponse
+
+        await Task.Delay(TimeSpan.FromSeconds(11));
+
+        return new HelloResponse
         {
             Message = $"Hello, {name}. Your age: {request.Age}.",
             SentDate = Timestamp.FromDateTime(DateTime.UtcNow),
             Description = description,
             Synonyms = { "Privet", "Bonjour", "Salam" }
-        });
+        };
     }
 
     public override async Task StreamingFromServer(HelloRequest request,

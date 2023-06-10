@@ -21,9 +21,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumers", "Consumers", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService", "Services\GrpcService\GrpcService.csproj", "{7CA28B0B-B550-4D1A-90C2-4E6614AE0B68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcClient", "Services\GrpcClient\GrpcClient.csproj", "{DE6F52A8-E5D1-49D0-BF08-E6CA338ABE97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleGrpcClient", "Services\ConsoleGrpcClient\ConsoleGrpcClient.csproj", "{DE6F52A8-E5D1-49D0-BF08-E6CA338ABE97}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService.Test", "Services\Back\GrpcService.Test\GrpcService.Test.csproj", "{E4A4BFE7-436B-4E99-B00B-3C1BE87D05BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebGrpcClient", "Services\WebGrpcClient\WebGrpcClient.csproj", "{19B78103-BE09-4726-85F0-86B30542EED8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{E4A4BFE7-436B-4E99-B00B-3C1BE87D05BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4A4BFE7-436B-4E99-B00B-3C1BE87D05BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4A4BFE7-436B-4E99-B00B-3C1BE87D05BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B78103-BE09-4726-85F0-86B30542EED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B78103-BE09-4726-85F0-86B30542EED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B78103-BE09-4726-85F0-86B30542EED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B78103-BE09-4726-85F0-86B30542EED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0E524BC0-D338-4F13-BD81-46A394B4A4BD} = {F8B99BDE-3A4A-4EA0-9526-7D362C0793E0}
@@ -65,5 +71,6 @@ Global
 		{7CA28B0B-B550-4D1A-90C2-4E6614AE0B68} = {F8B99BDE-3A4A-4EA0-9526-7D362C0793E0}
 		{DE6F52A8-E5D1-49D0-BF08-E6CA338ABE97} = {F8B99BDE-3A4A-4EA0-9526-7D362C0793E0}
 		{E4A4BFE7-436B-4E99-B00B-3C1BE87D05BC} = {0E524BC0-D338-4F13-BD81-46A394B4A4BD}
+		{19B78103-BE09-4726-85F0-86B30542EED8} = {F8B99BDE-3A4A-4EA0-9526-7D362C0793E0}
 	EndGlobalSection
 EndGlobal

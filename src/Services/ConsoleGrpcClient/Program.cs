@@ -6,8 +6,15 @@ using GrpcClient;
 using var channel = GrpcChannel.ForAddress("http://localhost:5029");
 var client = new Greeter.GreeterClient(channel);
 
-// await UnaryOperation(client);
-await Oneof(client);
+try
+{
+    await UnaryOperation(client);
+}
+catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+{
+    Console.WriteLine("Greeting timeout");
+}
+
 Console.WriteLine("Press any key to exit...");
 Console.ReadKey();
 
@@ -29,7 +36,8 @@ static async Task UnaryOperation(Greeter.GreeterClient client)
     var request = new HelloRequest { Name = "Focus", Age = 20 };
     request.Attributes.Add(attributes);
 
-    var reply = await client.SayHelloAsync(request);
+    var reply = await client.SayHelloAsync(request,
+        deadline: DateTime.UtcNow.AddSeconds(10));
     Console.WriteLine($"{reply.Message} | {reply.Description} | {reply.SentDate}");
     foreach (var synonym in reply.Synonyms)
         Console.WriteLine(synonym);
