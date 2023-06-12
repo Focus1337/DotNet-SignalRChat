@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\GrpcService\GrpcService.csproj" />
+      <ProjectReference Include="..\GrpcService\GrpcService.csproj" />
     </ItemGroup>
 
 </Project>
